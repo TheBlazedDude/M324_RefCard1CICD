@@ -47,7 +47,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "[GithubVersion]" Docker meta (tags & labels for GHCR)
+      - name: "[GithubVersion] Docker meta (tags & labels for GHCR)"
         id: meta
         uses: docker/metadata-action@v5
         with:
