@@ -10,21 +10,20 @@
 # CMD ["java", "-jar", "/app/app.jar"]
 
 # Cache Friendly Maven Build, where the local m2 Repo is used, to reuse already downloaded libraries like mvn
-# ---- Build stage
-FROM openjdk:17.0.1-jdk-slim AS build
+# ---------- Build stage (has mvn)
+FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copy pom first to leverage layer/cache
+# Leverage layer cache for deps
 COPY pom.xml .
-# Warm the dependency cache
 RUN --mount=type=cache,target=/root/.m2 mvn -B -DskipTests dependency:go-offline
 
-# Now copy sources and build
+# Build
 COPY . .
 RUN --mount=type=cache,target=/root/.m2 mvn -B -DskipTests package
 
-# ---- Runtime stage (small)
-FROM openjdk:17.0.1-jdk-slim
+# ---------- Runtime stage (small JRE)
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/*-SNAPSHOT.jar app.jar
 ENTRYPOINT ["java","-jar","/app/app.jar"]
