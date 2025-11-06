@@ -1,5 +1,5 @@
 # Name des Workflows (erscheint im Actions-Tab in GitHub)
-name: Build and Push Docker Image to Docker Hub
+name: [TeacherVersion] Build and Push Docker Image to Docker Hub
 
 # --- Trigger-Bedingungen ---
 on:
@@ -23,21 +23,21 @@ jobs:
 
       # 1. Quellcode aus dem Repository auschecken
       # Diese Action lädt den Code (inkl. Dockerfile) in die VM
-      - name: Checkout repository
+      - name: [TeacherVersion] Checkout repository
         uses: actions/checkout@v4
 
       # 2. QEMU aktivieren – ermöglicht Cross-Platform-Builds
       # zBsp. ein amd64-Image auf einer ARM-CPU oder umgekehrt
-      - name: Set up QEMU
+      - name: [TeacherVersion] Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       # 3. Docker Buildx einrichten – moderne Build-Engine für Multi-Arch Images
-      - name: Set up Docker Buildx
+      - name: [TeacherVersion] Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       # 4. Bei Docker Hub einloggen, um das Image pushen zu können
       # Login erfolgt mit den geheimen Zugangsdaten aus den GitHub Secrets
-      - name: Log in to Docker Hub
+      - name: [TeacherVersion] Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           registry: docker.io                        # Ziel-Registry
@@ -46,7 +46,7 @@ jobs:
 
       # 5. Docker-Image bauen und auf Docker Hub hochladen
       # Achtung, v5 redownloads everything (maven & apache from scratch, while v6 uses a cached version to make build smaller)
-      - name: Build and push Docker image
+      - name: [TeacherVersion] Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           # Pfad zum Build-Kontext (hier das Repo selbst)

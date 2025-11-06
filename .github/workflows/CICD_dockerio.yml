@@ -1,4 +1,9 @@
-name: Build & Push to Docker Hub Workflow
+# This workflow builds the application, runs the tests, and then builds a multi-architecture
+# Docker image (amd64 + arm64) using Buildx, tags it automatically, and pushes it to Docker Hub
+# under your Docker Hub account. It uses a cached .m2 Maven repository during the build to speed
+# up dependency resolution.
+
+name: [DockerVersion] Build & Push to Docker Hub Workflow
 
 on:
   push:
@@ -8,48 +13,46 @@ on:
 jobs:
   CICD_dockerio_test_build_push:
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
 
     steps:
-      - name: Checkout
+      - name: [DockerVersion] Checkout
         uses: actions/checkout@v4
 
-      # Optional: Unit-Tests vor dem Image-Build
-      - name: Setup Java
+      # Optional: run unit tests on the runner
+      - name: [DockerVersion] Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Maven test
+      - name: [DockerVersion] Maven test
         run: mvn -B -DskipTests=false test
 
-      - name: Set up QEMU
+      - name: [DockerVersion] Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Buildx
+      - name: [DockerVersion] Set up Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
+      - name: [DockerVersion] Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          registry: docker.io
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Docker meta (Tags & Labels)
+      - name: [DockerVersion] Docker meta (Tags & Labels)
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/refcard01
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/refcard01
           tags: |
             type=ref,event=branch
             type=sha
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build & Push
+      - name: [DockerVersion] Build & Push
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -60,3 +63,4 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          # provenance: false   # uncomment if you want to disable attestations
