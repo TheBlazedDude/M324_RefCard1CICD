@@ -10,14 +10,21 @@
 # CMD ["java", "-jar", "/app/app.jar"]
 
 # Cache Friendly Maven Build, where the local m2 Repo is used, to reuse already downloaded libraries like mvn
-# syntax=docker/dockerfile:1.7
+# ---- Build stage
 FROM openjdk:17.0.1-jdk-slim AS build
 WORKDIR /app
-# Copy only pom.xml first (this rarely changes)
-COPY pom.xml ./
-# Pre-fetch dependencies with cache mount
+
+# Copy pom first to leverage layer/cache
+COPY pom.xml .
+# Warm the dependency cache
 RUN --mount=type=cache,target=/root/.m2 mvn -B -DskipTests dependency:go-offline
-# Now copy the actual source (changes often)
-COPY src ./src
-# Build using the same cache
+
+# Now copy sources and build
+COPY . .
 RUN --mount=type=cache,target=/root/.m2 mvn -B -DskipTests package
+
+# ---- Runtime stage (small)
+FROM openjdk:17.0.1-jdk-slim
+WORKDIR /app
+COPY --from=build /app/target/*-SNAPSHOT.jar app.jar
+ENTRYPOINT ["java","-jar","/app/app.jar"]
