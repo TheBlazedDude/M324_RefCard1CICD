@@ -3,7 +3,7 @@
 # under your Docker Hub account. It uses a cached .m2 Maven repository during the build to speed
 # up dependency resolution.
 
-name: [DockerVersion] Build & Push to Docker Hub Workflow
+name: "[DockerVersion] Build & Push to Docker Hub Workflow"
 
 on:
   push:
@@ -17,32 +17,32 @@ jobs:
       contents: read
 
     steps:
-      - name: [DockerVersion] Checkout
+      - name: "[DockerVersion] Checkout"
         uses: actions/checkout@v4
 
       # Optional: run unit tests on the runner
-      - name: [DockerVersion] Setup Java
+      - name: "[DockerVersion] Setup Java"
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: [DockerVersion] Maven test
+      - name: "[DockerVersion] Maven test"
         run: mvn -B -DskipTests=false test
 
-      - name: [DockerVersion] Set up QEMU
+      - name: "[DockerVersion] Set up QEMU"
         uses: docker/setup-qemu-action@v3
 
-      - name: [DockerVersion] Set up Buildx
+      - name: "[DockerVersion] Set up Buildx"
         uses: docker/setup-buildx-action@v3
 
-      - name: [DockerVersion] Login to Docker Hub
+      - name: "[DockerVersion] Login to Docker Hub"
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: [DockerVersion] Docker meta (Tags & Labels)
+      - name: "[DockerVersion] Docker meta (Tags & Labels)"
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -52,7 +52,7 @@ jobs:
             type=sha
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: [DockerVersion] Build & Push
+      - name: "[DockerVersion] Build & Push"
         uses: docker/build-push-action@v6
         with:
           context: .
