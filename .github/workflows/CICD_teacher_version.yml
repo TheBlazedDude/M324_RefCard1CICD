@@ -45,8 +45,9 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}    # Docker-Hub-Token oder Passwort (Secret)
 
       # 5. Docker-Image bauen und auf Docker Hub hochladen
+      # Achtung, v5 redownloads everything (maven & apache from scratch, while v6 uses a cached version to make build smaller)
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           # Pfad zum Build-Kontext (hier das Repo selbst)
           context: .
@@ -66,3 +67,5 @@ jobs:
           tags: |
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/myproject:latest
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/myproject:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
