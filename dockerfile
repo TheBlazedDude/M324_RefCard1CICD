@@ -28,6 +28,7 @@ RUN --mount=type=cache,target=/root/.m2 mvn -B -DskipTests package
 # ---------- Runtime stage (small JRE)
 FROM eclipse-temurin:17-jre
 WORKDIR /app
+EXPOSE 8080
 COPY --from=build /app/target/*-SNAPSHOT.jar app.jar
 ENTRYPOINT ["java","-jar","/app/app.jar"]
 
